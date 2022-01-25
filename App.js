@@ -9,6 +9,7 @@ import FriendsScreen from './components/FriendsScreen';
 import AccountScreen from './components/AccountScreen';
 import JoinGameScreen from './components/JoinGameScreen';
 import CreateGameScreen from './components/CreateGameScreen';
+import LoginScreen from './containers/LoginScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,10 @@ const App = () => {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
         />
         <Stack.Screen
           name="JoinGame"

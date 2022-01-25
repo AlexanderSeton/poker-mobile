@@ -16,8 +16,8 @@ const HomeScreen = (props) => {
         <View>
             <Button
                 title="Log In"
-                onPress={() => 
-                    setLoggedIn(true)
+                onPress={() =>
+                    props.navigation.navigate("Login")
                 }
             />
             <Button
