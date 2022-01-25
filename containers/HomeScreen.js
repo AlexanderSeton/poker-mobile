@@ -5,6 +5,18 @@ const HomeScreen = (props) => {
     return(
         <View>
             <Button
+                title="Join Game"
+                onPress={() =>
+                    props.navigation.navigate("JoinGame")
+                }
+            />
+            <Button
+                title="Create Game"
+                onPress={() =>
+                    props.navigation.navigate("CreateGame")
+                }
+            />
+            <Button
                 title="Friends"
                 onPress={() =>
                     props.navigation.navigate("Friends")

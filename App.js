@@ -7,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './containers/HomeScreen';
 import FriendsScreen from './components/FriendsScreen';
 import AccountScreen from './components/AccountScreen';
+import JoinGameScreen from './components/JoinGameScreen';
+import CreateGameScreen from './components/CreateGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -14,10 +16,18 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-          />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+        />
+        <Stack.Screen
+          name="JoinGame"
+          component={JoinGameScreen}
+        />
+        <Stack.Screen
+          name="CreateGame"
+          component={CreateGameScreen}
+        />
         <Stack.Screen
           name="Friends"
           component={FriendsScreen}

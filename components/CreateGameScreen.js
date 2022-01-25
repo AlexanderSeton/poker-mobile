@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
 
-const FriendsScreen = (props) => {
+const CreateGameScreen = () => {
     return(
         <View>
-            <Text>Friends Screen</Text>
+            <Text>Create Game</Text>
         </View>
     )
 }
 
-export default FriendsScreen;
+export default CreateGameScreen;
