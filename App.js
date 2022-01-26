@@ -26,11 +26,11 @@ const App = () => {
           component={LoginScreen}
         />
         <Stack.Screen
-          name="JoinGame"
+          name="Join Game"
           component={JoinGameScreen}
         />
         <Stack.Screen
-          name="CreateGame"
+          name="Create Game"
           component={CreateGameScreen}
         />
         <Stack.Screen

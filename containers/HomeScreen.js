@@ -26,14 +26,14 @@ const HomeScreen = (props) => {
                 title="Join Game"
                 disabled={!loggedIn}
                 onPress={() =>
-                    props.navigation.navigate("JoinGame")
+                    props.navigation.navigate("Join Game")
                 }
             />
             <Button
                 title="Create Game"
                 disabled={!loggedIn}
                 onPress={() =>
-                    props.navigation.navigate("CreateGame")
+                    props.navigation.navigate("Create Game")
                 }
             />
             <Button
