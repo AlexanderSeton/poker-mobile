@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, Text, Button, TextInput, StyleSheet, SafeAreaView } from "react-native";
 
 const GameScreen = () => {
+
+    const [betAmount, setBetAmount] = useState();
+
     return(
         <SafeAreaView>
             <View style={styles.main}>
@@ -21,7 +24,36 @@ const GameScreen = () => {
                     </View>
 
                     <View style={styles.userBottom}>
-                        <Text style={styles.text}>User Bottom (Buttons)</Text>
+                        <View style={styles.buttonView}>
+                            <Button
+                                title="Fold"
+                                onPress={() => 
+                                    handleFold()
+                                }
+                            />
+                        </View>
+                        <View style={styles.buttonView}>
+                            <Button
+                                title="Call"
+                                onPress={() => 
+                                    handleCall()
+                                }
+                            />
+                        </View>
+                        <View style={styles.buttonView}>
+                            <Button
+                                title="Bet"
+                                onPress={() => 
+                                    handleBet()
+                                }
+                            />
+                        </View>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={setBetAmount}
+                            value={betAmount}
+                            placeholder="Bet Amount..."
+                        />
                     </View>
                 </View>
 
@@ -33,6 +65,23 @@ const GameScreen = () => {
 const styles = StyleSheet.create({
     main: {
         paddingTop: "7.5%",
+    },
+    buttonView: {
+        height: "40%",
+        borderWidth: 1,
+        padding: "2%",
+        marginLeft: "auto",
+        marginRight: "auto",
+        borderRadius: 10,
+        borderColor: "blue",
+        justifyContent: "center",
+    },
+    input: {
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 10,
     },
     top: {
         borderWidth: 1,
@@ -56,6 +105,10 @@ const styles = StyleSheet.create({
     },
     userBottom: {
         height: "40%",
+        flexDirection: "row",
+        // alignContent: "center",
+        justifyContent: "center",
+        alignItems: "center",
     },
     userHand: {
         borderWidth: 1,
