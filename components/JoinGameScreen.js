@@ -1,12 +1,31 @@
 import React, { useState } from "react";
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet, Alert } from "react-native";
 
 const JoinGameScreen = () => {
 
-    const [gameId, setGameId] = useState("");
+    const [gameId, setGameId] = useState();
 
     const handleSubmit = () => {
-        console.log("join game handle submit executed");
+        if (gameId == null || gameId == "") {
+            Alert.alert(
+                "Missing Fields",
+                "Enter game ID, then press submit again",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel"
+                    },
+                    { 
+                        text: "OK", 
+                    }
+                ]
+            );
+        }
+        else {
+            // check with server if game id exists
+            // if it does exist then connect to the specified game using user's game id
+            console.log(gameId);
+        }
     }
 
     return(

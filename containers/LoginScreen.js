@@ -14,13 +14,13 @@ const LoginScreen = (props) => {
                 "Enter username and password, then press submit again",
                 [
                     {
-                      text: "Cancel",
-                      style: "cancel"
+                        text: "Cancel",
+                        style: "cancel"
                     },
                     { 
-                        text: "OK", 
+                        text: "OK",
                     }
-                  ]
+                ]
             );
         }
         else {
