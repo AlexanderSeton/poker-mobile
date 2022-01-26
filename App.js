@@ -10,6 +10,7 @@ import AccountScreen from './components/AccountScreen';
 import JoinGameScreen from './components/JoinGameScreen';
 import CreateGameScreen from './components/CreateGameScreen';
 import LoginScreen from './containers/LoginScreen';
+import GameScreen from './containers/GameScreen';
 
 const Stack = createStackNavigator();
 
@@ -40,6 +41,10 @@ const App = () => {
         <Stack.Screen
           name="Account"
           component={AccountScreen}
+        />
+        <Stack.Screen
+          name="Play"
+          component={GameScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

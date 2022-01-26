@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Button, TextInput, StyleSheet, Alert } from "react-native";
 
-const JoinGameScreen = () => {
+const JoinGameScreen = (props) => {
 
     const [gameId, setGameId] = useState();
 
@@ -25,6 +25,9 @@ const JoinGameScreen = () => {
             // check with server if game id exists
             // if it does exist then connect to the specified game using user's game id
             console.log(gameId);
+
+            // sending to GameScreen (where game is actually played)
+            props.navigation.navigate("Play");
         }
     }
 
