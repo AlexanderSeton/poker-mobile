@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, TextInput, StyleSheet, SafeAreaView } from "react-native";
+import Player from "../components/Player"
 
 const GameScreen = () => {
 
@@ -16,6 +17,10 @@ const GameScreen = () => {
     const [pot, setPot] = useState();
     const [betAmount, setBetAmount] = useState();
 
+    const playerItems = players.map((player) => {
+        return <Player player={player} />
+    })
+
     return(
         <SafeAreaView>
             <View style={styles.main}>
@@ -23,6 +28,8 @@ const GameScreen = () => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
+                        <Player/>
+                        <Player/>
 
                     </View>
 
@@ -31,7 +38,8 @@ const GameScreen = () => {
                     </View>
                     
                     <View style={styles.playerView}>
-                        
+                        <Player/>
+                        <Player/>
                     </View>
 
                 </View>
@@ -109,6 +117,7 @@ const styles = StyleSheet.create({
     top: {
         borderWidth: 1,
         height: "60%",
+        backgroundColor: "green",
     },
     bottom: {
         borderWidth: 1,
@@ -147,11 +156,13 @@ const styles = StyleSheet.create({
         height: "50%",
         flexDirection: "row",
         justifyContent: "flex-start",
-        backgroundColor: "green",
+        // backgroundColor: "green",
     },
     playerView: {
         height: "25%",
+        // backgroundColor: "green",
         flexDirection: "row",
+        justifyContent: "space-between",
     },
 });
 
