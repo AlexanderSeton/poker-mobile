@@ -1,33 +1,81 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet, Alert, TextInput } from "react-native";
 
 const CreateGameScreen = () => {
 
     const [gameId, setGameId] = useState();
     const [maxPlayers, setMaxPlayers] = useState();
+    const [bigBlind, setBigBlind] = useState();
+    const [minBuyIn, setMinBuyIn] = useState();
+
+    useEffect(() => {
+        setMinBuyIn(bigBlind * 10);
+    }, [bigBlind])
 
     const handleSubmit = () => {
-        console.log("handleSubmit treggiered", gameId, maxPlayers);
+        if (
+            gameId == null || gameId == "" || gameId == undefined || gameId == NaN || 
+            maxPlayers == null || maxPlayers == "" || maxPlayers == undefined || maxPlayers == NaN || 
+            bigBlind == null || bigBlind == "" || bigBlind == undefined || bigBlind == NaN || 
+            minBuyIn == null || minBuyIn == "" || minBuyIn == undefined || minBuyIn == NaN 
+        ) {
+            Alert.alert(
+                "Missing Fields",
+                "Fill all fields, then press submit again",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel"
+                    },
+                    { 
+                        text: "OK", 
+                    }
+                ]
+            );
+        }
+        else {
+            // create a new game server side
+            console.log("creating new game...")
+            console.log(gameId, maxPlayers, bigBlind, minBuyIn);
+        }
     }
 
     return(
         <View style={styles.main}>
-            <Text style={styles.text}>Game Id:</Text>
-            <Text style={styles.smallText}>This will be what people use to join your game</Text>
-            <TextInput
-                style={styles.input}
-                onChangeText={setGameId}
-                value={gameId}
-                placeholder="Game ID..."
-            />
-            <Text style={styles.text}>Max Number Players:</Text>
-            <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                onChangeText={setMaxPlayers}
-                value={maxPlayers}
-                placeholder="Game ID..."
-            />
+            <View style={styles.inputView}>
+                <Text style={styles.text}>Game Id:</Text>
+                <Text style={styles.smallText}>This will be what people use to join your game</Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setGameId}
+                    value={gameId}
+                    placeholder="Game ID..."
+                />
+            </View>
+            <View style={styles.inputView}>
+                <Text style={styles.text}>Max Number Players:</Text>
+                <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    onChangeText={setMaxPlayers}
+                    value={maxPlayers}
+                    placeholder="Max Players..."
+                />
+            </View>
+            <View style={styles.inputView}>
+                <Text style={styles.text}>Big Blind:</Text>
+                <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    onChangeText={setBigBlind}
+                    value={bigBlind}
+                    placeholder="Max Players..."
+                />                
+            </View>
+            <View style={styles.inputView}>
+                <Text style={styles.text}>Minimum Buy In: {minBuyIn != NaN ? minBuyIn : null}</Text>
+                <Text style={styles.smallText}>This is x10 your big blind</Text>
+            </View>
             <View style={styles.buttonView}>
                 <Button
                     title="Submit"
@@ -43,6 +91,9 @@ const CreateGameScreen = () => {
 const styles = StyleSheet.create({
     main: {
         paddingTop: "7.5%",
+    },
+    inputView: {
+        marginBottom: "4%",
     },
     input: {
       height: 40,
