@@ -3,6 +3,17 @@ import { View, Text, Button, TextInput, StyleSheet, SafeAreaView } from "react-n
 
 const GameScreen = () => {
 
+    // server states
+    const [players, setPlayers] = useState([]);
+    const [user, setUser] = useState();
+    const [holeCards, setHoleCards] = useState();
+    const [communityCards, setCommunityCards] = useState();
+    const [smallBlind, setSmallBlind] = useState();
+    const [bigBlind, setBigBlind] = useState();
+    const [activePlayer, setActivePlayer] = useState();
+    const [winner, setWinner] = useState();
+    
+    const [pot, setPot] = useState();
     const [betAmount, setBetAmount] = useState();
 
     return(
@@ -10,7 +21,19 @@ const GameScreen = () => {
             <View style={styles.main}>
 
                 <View style={styles.top}>
-                    <Text style={styles.text}>Top</Text>
+
+                    <View style={styles.playerView}>
+
+                    </View>
+
+                    <View style={styles.board}>
+
+                    </View>
+                    
+                    <View style={styles.playerView}>
+                        
+                    </View>
+
                 </View>
 
                 <View style={styles.bottom}>
@@ -67,7 +90,7 @@ const styles = StyleSheet.create({
         paddingTop: "7.5%",
     },
     buttonView: {
-        height: "40%",
+        height: "60%",
         borderWidth: 1,
         padding: "2%",
         marginLeft: "auto",
@@ -78,18 +101,18 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
-        margin: 12,
+        margin: 5,
         borderWidth: 1,
         borderRadius: 10,
         padding: 10,
     },
     top: {
         borderWidth: 1,
-        height: "50%",
+        height: "60%",
     },
     bottom: {
         borderWidth: 1,
-        height: "50%",
+        height: "40%",
     },
     text: {
         textAlign: "center",
@@ -119,6 +142,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         // borderColor: "red",
         width: "40%",
+    },
+    board: {
+        height: "50%",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        backgroundColor: "green",
+    },
+    playerView: {
+        height: "25%",
+        flexDirection: "row",
     },
 });
 
