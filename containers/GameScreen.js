@@ -15,7 +15,9 @@ const GameScreen = () => {
         stompClient.connect({}, function (frame) {
             // setConnected(true);
             console.log("Connected: " + frame);
-            stompClient.subscribe("http://localhost:8080/client/greetings");
+            stompClient.subscribe("/client/greetings", function(response) {
+                console.log("Response:\n", response.body);
+            });
         });
     }
 
@@ -27,9 +29,9 @@ const GameScreen = () => {
         console.log("Disconnected");
     }
 
-    // function sendName() {
-    //     stompClient.send("http://localhost:8080/server/hello", {}, JSON.stringify({"name": $("#name").val()}));
-    // }
+    function sendName() {
+        stompClient.send("/server/hello", {}, JSON.stringify({"name": "Alexander"}));
+    }
 
     // function showGreeting(message) {
     //     $("#greetings").append("<tr><td>" + message + "</td></tr>");
@@ -70,8 +72,11 @@ const GameScreen = () => {
     const [winner, setWinner] = useState(); // standalone route ??
 
     useEffect(() => {
-        console.log("In use effect");
         connect();
+        setTimeout(() => {
+            sendName();
+        }, 1000)
+        
     }, [])
 
     // const playerItems = players.map((player) => {
