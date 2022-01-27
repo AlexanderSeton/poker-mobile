@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import reactDom from "react-dom";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, TextInput, StyleSheet, Alert } from "react-native";
 
 const LoginScreen = (props) => {
 
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
+    const [userId, setUserId] = useState();
 
-    const handleSubmit = () => {
+    // // test
+    // useEffect(() => {
+    //     console.log("LoginScreen", userId);
+    // }, [userId])
+
+    const handleSubmit = async () => {
         if (username == null || password == null || username == "" || password == "") {
             Alert.alert(
                 "Missing Fields",
@@ -25,10 +30,38 @@ const LoginScreen = (props) => {
         }
         else {
             // check server to validate user
-            props.route.params.loggedIn = true;
-            props.navigation.navigate("Home", {
-                loggedIn: props.route.params.loggedIn
-            })
+            fetch(`http://localhost:8080/login?username=${username}&password=${password}`)
+                .then(async (response) => {
+                    if (response.status == 200) {
+                        // get the player's ID from response
+                        let loginId = await response.json();
+                        props.route.params.loggedIn = true;
+                        props.navigation.navigate("Home", {
+                            loggedIn: props.route.params.loggedIn,
+                            id: loginId
+                        })
+                    }
+                    else {
+                        Alert.alert(
+                            "Incorrect Username or Password",
+                            "Try again, then press submit",
+                            [
+                                {
+                                    text: "Cancel",
+                                    style: "cancel"
+                                },
+                                { 
+                                    text: "OK",
+                                }
+                            ]
+                        );
+                    }
+                })
+
+            // props.route.params.loggedIn = true;
+            // props.navigation.navigate("Home", {
+            //     loggedIn: props.route.params.loggedIn
+            // })
         }
     }
 

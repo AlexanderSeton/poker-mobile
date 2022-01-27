@@ -1,20 +1,89 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, TextInput, StyleSheet, SafeAreaView } from "react-native";
+import Player from "../components/Player"
+import SockJS from "sockjs-client";
+import { Stomp } from "stomp-websocket/lib/stomp";
+
 
 const GameScreen = () => {
 
-    // server states
-    const [players, setPlayers] = useState([]);
-    const [user, setUser] = useState();
-    const [holeCards, setHoleCards] = useState();
-    const [communityCards, setCommunityCards] = useState();
-    const [smallBlind, setSmallBlind] = useState();
-    const [bigBlind, setBigBlind] = useState();
-    const [activePlayer, setActivePlayer] = useState();
-    const [winner, setWinner] = useState();
-    
-    const [pot, setPot] = useState();
+    let stompClient = null;
+
+    function connect() {
+        let socket = new SockJS("http://localhost:8080/ws");
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            // setConnected(true);
+            console.log("Connected: " + frame);
+            stompClient.subscribe("/client/greetings", function(response) {
+                // console.log("Response:\n", response.body);
+                let players = JSON.parse(response.body);
+                setPlayers([players]); // temp for testing
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        // setConnected(false);
+        console.log("Disconnected");
+    }
+
+    function sendName() {
+        stompClient.send("/server/hello", {}, JSON.stringify({"name": "Alexander"}));
+    }
+
+    // function showGreeting(message) {
+    //     $("#greetings").append("<tr><td>" + message + "</td></tr>");
+    // }
+
+    // $(function () {
+    //     $("form").on("submit", function (e) {
+    //         e.preventDefault();
+    //     });
+    //     $( "#connect" ).click(function() { connect(); });
+    //     $( "#disconnect" ).click(function() { disconnect(); });
+    //     $( "#send" ).click(function() { sendName(); });
+    // });
+
+    // WEBSOCKET ROUTES:
+    // gameData - refreshed after every player"s action/move
+    // allPlayers - refreshed after every player"s action/move
+    // holCards - refreshed start of every round/game
+    // ?winner - refreshed end of every round/game
+
+    // CLIENT-SIDE STATES (individual to each user)
+    const [userId, setUserId] = useState();
     const [betAmount, setBetAmount] = useState();
+
+    // SERVER-SIDE STATES
+    // individual user states
+    const [holeCards, setHoleCards] = useState(); // needs own route (just get user"s cards by id)
+    const [user, setUser] = useState(); // calculated from allPlayers
+    const [players, setPlayers] = useState([]); // calculated from allPlayers
+
+    // constant states (same for every player)
+    const [communityCards, setCommunityCards] = useState(); // gameDataRoute (send after every player"s action)
+    const [pot, setPot] = useState(); // gameDataRoute
+    const [smallBlind, setSmallBlind] = useState(); // gameDataRoute
+    const [bigBlind, setBigBlind] = useState(); // gameDataRoute
+    const [allPlayers, setAllPlayers] = useState();
+    const [activePlayer, setActivePlayer] = useState(); // calculated from allPlayers
+    const [winner, setWinner] = useState(); // standalone route ??
+
+    useEffect(() => {
+        connect();
+        setTimeout(() => {
+            sendName();
+        }, 1000)
+        
+    }, [])
+
+    const playerItems = players.map((player, index) => {
+        return <Player player={player} key={index} />
+    })
 
     return(
         <SafeAreaView>
@@ -23,15 +92,16 @@ const GameScreen = () => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
-
+                        {/* <Text>{players[0]}</Text> */}
+                        {playerItems}
                     </View>
 
                     <View style={styles.board}>
-
+                        
                     </View>
                     
                     <View style={styles.playerView}>
-                        
+
                     </View>
 
                 </View>
@@ -109,6 +179,7 @@ const styles = StyleSheet.create({
     top: {
         borderWidth: 1,
         height: "60%",
+        backgroundColor: "green",
     },
     bottom: {
         borderWidth: 1,
@@ -147,11 +218,14 @@ const styles = StyleSheet.create({
         height: "50%",
         flexDirection: "row",
         justifyContent: "flex-start",
-        backgroundColor: "green",
+        // backgroundColor: "green",
     },
     playerView: {
         height: "25%",
+        // backgroundColor: "green",
         flexDirection: "row",
+        justifyContent: "space-between",
+        borderWidth: 1,
     },
 });
 

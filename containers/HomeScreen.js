@@ -5,11 +5,15 @@ import { borderColor } from "react-native/Libraries/Components/View/ReactNativeS
 const HomeScreen = (props) => {
 
     const [loggedIn, setLoggedIn] = useState(false);
+    const [userId, setUserId] = useState();
 
     useEffect(() => {
         if (props.route.params !== undefined) {
-            loggedInStatus = props.route.params.loggedIn;
+            let loggedInStatus = props.route.params.loggedIn;
+            let loginId = props.route.params.id;
             setLoggedIn(loggedInStatus);
+            setUserId(loginId);
+            console.log(loginId);
         }
     })
 
