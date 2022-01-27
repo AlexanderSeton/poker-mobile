@@ -9,9 +9,8 @@ const Player = function(props) {
                 style ={styles.image}
                 source={require("../assets/icon.png")}
             />
-            <Text>Name: {props.player.name}</Text>
+            <Text>{props.player.username}</Text>
             <Text>£{props.player.stack}</Text>
-            <Image/>
         </View>
     )
 }
@@ -21,7 +20,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: "green",
     width: "30%",
-    height: "auto",
+    height: "100%",
     alignItems: "center",
     textAlign: "center",
     },

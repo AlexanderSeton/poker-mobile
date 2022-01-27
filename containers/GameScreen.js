@@ -16,7 +16,9 @@ const GameScreen = () => {
             // setConnected(true);
             console.log("Connected: " + frame);
             stompClient.subscribe("/client/greetings", function(response) {
-                console.log("Response:\n", response.body);
+                // console.log("Response:\n", response.body);
+                let players = JSON.parse(response.body);
+                setPlayers([players]); // temp for testing
             });
         });
     }
@@ -79,9 +81,9 @@ const GameScreen = () => {
         
     }, [])
 
-    // const playerItems = players.map((player) => {
-    //     return <Player player={player} />
-    // })
+    const playerItems = players.map((player, index) => {
+        return <Player player={player} key={index} />
+    })
 
     return(
         <SafeAreaView>
@@ -90,11 +92,12 @@ const GameScreen = () => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
-
+                        {/* <Text>{players[0]}</Text> */}
+                        {playerItems}
                     </View>
 
                     <View style={styles.board}>
-
+                        
                     </View>
                     
                     <View style={styles.playerView}>
@@ -222,6 +225,7 @@ const styles = StyleSheet.create({
         // backgroundColor: "green",
         flexDirection: "row",
         justifyContent: "space-between",
+        borderWidth: 1,
     },
 });
 
