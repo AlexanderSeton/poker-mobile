@@ -17,9 +17,9 @@ const GameScreen = () => {
     const [pot, setPot] = useState();
     const [betAmount, setBetAmount] = useState();
 
-    const playerItems = players.map((player) => {
-        return <Player player={player} />
-    })
+    // const playerItems = players.map((player) => {
+    //     return <Player player={player} />
+    // })
 
     return(
         <SafeAreaView>
@@ -28,8 +28,6 @@ const GameScreen = () => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
-                        <Player/>
-                        <Player/>
 
                     </View>
 
@@ -38,8 +36,7 @@ const GameScreen = () => {
                     </View>
                     
                     <View style={styles.playerView}>
-                        <Player/>
-                        <Player/>
+
                     </View>
 
                 </View>
