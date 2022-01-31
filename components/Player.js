@@ -7,7 +7,7 @@ const Player = function(props) {
         <View style = {styles.player}>
             <Image
                 style ={styles.image}
-                source={require("../assets/icon.png")}
+                source={require("../assets/card_icon.png")}
             />
             <Text>{props.player.username}</Text>
             <Text>£{props.player.stack}</Text>
@@ -25,8 +25,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     },
     image: {
-        width: "60%",
-        height: "60%",
+        width: "50%",
+        height: "50%",
+        marginBottom: "5%",
+        marginTop: "5%",
     },
 });
 
