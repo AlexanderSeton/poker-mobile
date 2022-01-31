@@ -34,7 +34,9 @@ const HomeScreen = (props) => {
                     title="Join Game"
                     disabled={!loggedIn}
                     onPress={() =>
-                        props.navigation.navigate("Join Game")
+                        props.navigation.navigate("Join Game", {
+                            "userId": userId
+                        })
                     }
                 />
             </View>
@@ -43,7 +45,9 @@ const HomeScreen = (props) => {
                     title="Create Game"
                     disabled={!loggedIn}
                     onPress={() =>
-                        props.navigation.navigate("Create Game")
+                        props.navigation.navigate("Create Game", {
+                            "userId": userId
+                        })
                     }
                 />
             </View>
@@ -61,7 +65,9 @@ const HomeScreen = (props) => {
                     title="Account"
                     disabled={!loggedIn}
                     onPress={() =>
-                        props.navigation.navigate("Account")
+                        props.navigation.navigate("Account", {
+                            "userId": userId
+                        })
                     }
                 />
             </View>

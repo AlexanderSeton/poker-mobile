@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 
-const AccountScreen = () => {
+const AccountScreen = (props) => {
 
     const [username, setUsername] = useState();
     const [balance, setBalance] = useState();
 
     return(
         <View style={styles.main}>
-            <Text style={styles.text}>Username: {username}</Text>
+            <Text style={styles.text}>Username: {props.userId}</Text>
             <Text style={styles.text}>Balance: £{balance}</Text>
         </View>
     )

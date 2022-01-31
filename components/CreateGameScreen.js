@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet, Alert, TextInput } from "react-native";
 
-const CreateGameScreen = () => {
+const CreateGameScreen = (props) => {
 
     const [gameId, setGameId] = useState();
     const [maxPlayers, setMaxPlayers] = useState();
@@ -37,6 +37,12 @@ const CreateGameScreen = () => {
             // create a new game server side
             console.log("creating new game...")
             console.log(gameId, maxPlayers, bigBlind, minBuyIn);
+            props.navigation.navigate("Play", {
+                "newGame": true,
+                "gameId": gameId,
+                "userId": props.route.params.userId,
+                "bigBlind": bigBlind
+            });
         }
     }
 

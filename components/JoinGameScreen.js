@@ -27,7 +27,10 @@ const JoinGameScreen = (props) => {
             console.log(gameId);
 
             // sending to GameScreen (where game is actually played)
-            props.navigation.navigate("Play");
+            props.navigation.navigate("Play", {
+                "gameId": gameId,
+                "userId": props.route.params.userId
+            });
         }
     }
 
