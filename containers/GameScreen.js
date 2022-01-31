@@ -4,21 +4,20 @@ import Player from "../components/Player"
 import SockJS from "sockjs-client";
 import { Stomp } from "stomp-websocket/lib/stomp";
 
+let stompClient;
 
-const GameScreen = () => {
+const GameScreen = (props) => {
 
-    let stompClient = null;
-
-    function connect() {
-        let socket = new SockJS("http://localhost:8080/ws");
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
+    async function connect() {
+        let socket = await new SockJS("http://localhost:8080/ws");
+        stompClient = await Stomp.over(socket);
+        await stompClient.connect({}, function (frame) {
             // setConnected(true);
             console.log("Connected: " + frame);
             stompClient.subscribe("/client/greetings", function(response) {
-                // console.log("Response:\n", response.body);
-                let players = JSON.parse(response.body);
-                setPlayers([players]); // temp for testing
+                console.log("SERVER'S Response: ", response.body);
+                // let players = JSON.parse(response.body);
+                // setPlayers([players]); // temp for testing
             });
         });
     }
@@ -31,8 +30,51 @@ const GameScreen = () => {
         console.log("Disconnected");
     }
 
+    function createNewGame() {
+        stompClient.send(`/server/create/game/${props.route.params.gameId}`, {}, JSON.stringify(
+            {
+                "id": props.route.params.userId,
+                "bigBlindValue": props.route.params.bigBlind
+            }));
+        console.log("TEST: user id state at create game function: " + userId);
+    }
+
+    function connectToGame(){
+        stompClient.connect(`/server/game/${props.route.params.gameId}`,{},JSON.stringify(
+            {
+                "id": props.route.params.userId
+            }
+        ))
+    }
+
     function sendName() {
+        // connect();
         stompClient.send("/server/hello", {}, JSON.stringify({"name": "Alexander"}));
+    }
+
+    function handleFold() {
+        // connect();
+        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+            "action": "fold",
+            "betAmount": 0,
+            "playerId": userId
+        }));
+    }
+
+    function handleBet(){
+        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+            "action": "bet",
+            "betAmount": betAmount,
+            "playerId": props.route.params.userId
+        }));
+    }
+
+    function handleCall(){
+        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+            "action": "call",
+            "betAmount": 0,
+            "playerId": props.route.params.userId
+        }));
     }
 
     // function showGreeting(message) {
@@ -69,17 +111,52 @@ const GameScreen = () => {
     const [pot, setPot] = useState(); // gameDataRoute
     const [smallBlind, setSmallBlind] = useState(); // gameDataRoute
     const [bigBlind, setBigBlind] = useState(); // gameDataRoute
-    const [allPlayers, setAllPlayers] = useState();
+    const [allPlayers, setAllPlayers] = useState([]);
     const [activePlayer, setActivePlayer] = useState(); // calculated from allPlayers
     const [winner, setWinner] = useState(); // standalone route ??
+    const [largestContribution, setlargestContribution] = useState();
+    const [gameId,setGameId] = useState();
 
     useEffect(() => {
         connect();
+        setUserId(props.route.params.userId);
         setTimeout(() => {
-            sendName();
+            if (props.route.params.newGame !== undefined) {
+                createNewGame();
+            } else {
+                connectToGame();
+            }
         }, 1000)
-        
+        // setTimeout(() => {
+        //     sendName();
+        // }, 1000)
     }, [])
+    
+
+        // function handleCall () {
+        //     stompClient.send("/server/hello",{}, JSON.stringify({
+    
+        //     }));
+    
+        // }
+    
+        // function handleBet () {
+        //     stompClient.send("/server/hello",{}, JSON.stringify());
+    
+        // }
+        
+        // function handleFold (element) {
+        //     element.$server.fold();
+        // }
+    
+        // function handleCall () {
+        //     activePlayer.call();
+        // }
+    
+        // function handleBet () {
+        //     activePlayer.bet();
+        // }
+    
 
     const playerItems = players.map((player, index) => {
         return <Player player={player} key={index} />
@@ -127,7 +204,7 @@ const GameScreen = () => {
                         </View>
                         <View style={styles.buttonView}>
                             <Button
-                                title="Call"
+                                title="Call/Check"
                                 onPress={() => 
                                     handleCall()
                                 }
