@@ -88,6 +88,7 @@ const GameScreen = (props) => {
             });
         });
     }
+    
 
     function disconnect() {
         if (stompClient !== null) {
@@ -146,7 +147,7 @@ const GameScreen = (props) => {
     function handleDealHoleCards(){
         setDealt(true);
         stompClient.send(`/server/action/game/${props.route.params.gameKey}`,{}, JSON.stringify({
-            "action":"deal"
+            "action": "deal"
         }))
     }
 
