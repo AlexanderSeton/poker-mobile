@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, TextInput, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet, SafeAreaView, Alert } from "react-native";
 import Player from "../components/Player"
 import SockJS from "sockjs-client";
 import { Stomp } from "stomp-websocket/lib/stomp";
@@ -56,35 +56,94 @@ const GameScreen = (props) => {
         await stompClient.connect({}, function (frame) {
             // setConnected(true);
             console.log("Connected: " + frame);
+
             stompClient.subscribe("/client/greetings", async function(response) {
-                // check if create game has worked
-                console.log("!!!SERVER'S Response (client/greetings):\n");
-                console.log(response["body"]);
+                console.log("client/greetings):"); // test
+                console.log(JSON.parse(response["body"])); // test
                 let data = await JSON.parse(response["body"]);
-                let players = await data["players"];
-                setPlayers(players);
-                let board = await data["board"];
-                setCommunityCards(board);
-                for (let i=0; i<players; i++) {
-                    if (players[i]["id"] == props.route.params.userId) {
-                        let user = await players[i];
-                        setUser(user);
+                // check successfully joined
+                if (data["statusCode"] == "OK") {
+                    console.log("success") // test
+                    let players = await data["body"]["players"];
+                    setPlayers(players);
+                    let board = await data["body"]["board"];
+                    setCommunityCards(board);
+                    for (let i=0; i<players; i++) {
+                        if (players[i]["id"] == props.route.params.userId) {
+                            let user = await players[i];
+                            setUser(user);
+                        }
                     }
+                    let pot = await data["pot"];
+                    setPot(pot);
+                    let smallBlind = await data["smallBlind"];
+                    setSmallBlind(smallBlind);
+                    let bigBlind = await smallBlind * 2;
+                    setBigBlind(bigBlind);
                 }
-                let pot = await data["pot"];
-                setPot(pot);
+                // handle unsuccessful create game
+                else {
+                    Alert.alert(
+                        "Game key already in use",
+                        "Enter a new game key, then press submit",
+                        [
+                            {
+                                text: "Cancel",
+                                style: "cancel"
+                            },
+                            { 
+                                text: "OK",
+                            }
+                        ]
+                    );
+                    // return user to the create game page
+                    await props.navigation.navigate("Create Game");
+                }
             });
+
             stompClient.subscribe("/client/join", async function(response) {
-                console.log("!!!SERVER'S Response (client/join):\n");
-                if (response == null) {
-                    console.log("NULL RESPONSE");
-                }
-                console.log(response["body"]);
+                console.log("client/join):"); // test
+                console.log(JSON.parse(response["body"])); // test
                 let data = await JSON.parse(response["body"]);
-                let players = data["players"];
-                setPlayers(players);
-                let board = data["board"];
-                setCommunityCards(board);
+                // check successfully joined
+                if (data["statusCode"] == "OK") {
+                    console.log("success") // test
+                    console.log(data);
+                    let players = await data["body"]["players"];
+                    setPlayers(players);
+                    let board = await data["body"]["board"];
+                    setCommunityCards(board);
+                    for (let i=0; i<players; i++) {
+                        if (players[i]["id"] == props.route.params.userId) {
+                            let user = await players[i];
+                            setUser(user);
+                        }
+                    }
+                    let pot = await data["pot"];
+                    setPot(pot);
+                    let smallBlind = await data["smallBlind"];
+                    setSmallBlind(smallBlind);
+                    let bigBlind = await smallBlind * 2;
+                    setBigBlind(bigBlind);
+                }
+                // handle if game not found
+                else {
+                    Alert.alert(
+                        "Game key not found",
+                        "Enter a new game key, then press submit",
+                        [
+                            {
+                                text: "Cancel",
+                                style: "cancel"
+                            },
+                            { 
+                                text: "OK",
+                            }
+                        ]
+                    );
+                    // return user to the create game page
+                    props.navigation.navigate("Join Game");
+                }
             });
         });
     }
@@ -165,9 +224,9 @@ const GameScreen = (props) => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
-                        {/* <Text>{players[0]}</Text> */}
                         {playerItems}
                     </View>
+
 
                     {dealt? <View style={styles.board}>
                         
