@@ -134,12 +134,12 @@ const GameScreen = (props) => {
         }));
     }
 
-    function handleCall(){
+    function handleCall(event){
         let amount = userContribution + betAmount;
         setUserContribution(amount);
         stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "call",
-            "betAmount": 0,
+            "betAmount": event.target.value,
             "playerId": props.route.params.userId
         }));
     }    
@@ -173,11 +173,12 @@ const GameScreen = (props) => {
                         
                         </View> 
                         : <Button 
+
                             title = "deal"
+
                             style={styles.dealButton}
                             onPress={handleDealHoleCards} 
                             /> 
-                    
                     }
                     
                     <View style={styles.playerView}>
@@ -208,6 +209,7 @@ const GameScreen = (props) => {
                         <View style={styles.buttonView}>
                             <Button
                                 title="Call/Check"
+                                value={largestContribution - userContribution}
                                 onPress={() => 
                                     handleCall()
                                 }
@@ -320,7 +322,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "blue",
         color: "white",
-
     },
 });
 
