@@ -29,7 +29,6 @@ const GameScreen = (props) => {
     const [pot, setPot] = useState(); // gameDataRoute
     const [smallBlind, setSmallBlind] = useState(); // gameDataRoute
     const [bigBlind, setBigBlind] = useState(); // gameDataRoute
-    const [allPlayers, setAllPlayers] = useState([]);
     const [activePlayer, setActivePlayer] = useState(); // calculated from allPlayers
     const [winner, setWinner] = useState(); // standalone route ??
     const [largestContribution, setlargestContribution] = useState();
@@ -56,15 +55,33 @@ const GameScreen = (props) => {
             // setConnected(true);
             console.log("Connected: " + frame);
             stompClient.subscribe("/client/greetings", async function(response) {
-                console.log("!!!SERVER'S Response:\n");
+                console.log("!!!SERVER'S Response (client/greetings):\n");
+                console.log(response["body"]);
                 let data = await JSON.parse(response["body"]);
-                let allPlayers = await data["players"];
-                setPlayers(allPlayers);
+                let players = await data["players"];
+                setPlayers(players);
                 let board = await data["board"];
                 setCommunityCards(board);
-                // console.log(response["body"]);
-                // let players = JSON.parse(response.body);
-                // setPlayers([players]); // temp for testing
+                for (let i=0; i<players; i++) {
+                    if (players[i]["id"] == props.route.params.userId) {
+                        let user = await players[i];
+                        setUser(user);
+                    }
+                }
+                let pot = await data["pot"];
+                setPot(pot);
+            });
+            stompClient.subscribe("/client/join", async function(response) {
+                console.log("!!!SERVER'S Response (client/join):\n");
+                if (response == null) {
+                    console.log("NULL RESPONSE");
+                }
+                console.log(response["body"]);
+                let data = await JSON.parse(response["body"]);
+                let players = data["players"];
+                setPlayers(players);
+                let board = data["board"];
+                setCommunityCards(board);
             });
         });
     }
@@ -86,7 +103,8 @@ const GameScreen = (props) => {
     }
 
     function connectToGame(){
-        stompClient.connect(`/server/game/${props.route.params.gameKey}`,{},JSON.stringify(
+        console.log(`Game Key: ${props.route.params.gameKey}. User ID: ${props.route.params.userId}`)
+        stompClient.send(`/server/join/game/${props.route.params.gameKey}`, {}, JSON.stringify(
             {
                 "id": props.route.params.userId
             }
@@ -95,7 +113,7 @@ const GameScreen = (props) => {
 
     function handleFold() {
         // connect();
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "fold",
             "betAmount": 0,
             "playerId": userId
@@ -103,7 +121,7 @@ const GameScreen = (props) => {
     }
 
     function handleBet(){
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "bet",
             "betAmount": betAmount,
             "playerId": props.route.params.userId
@@ -111,7 +129,7 @@ const GameScreen = (props) => {
     }
 
     function handleCall(){
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "call",
             "betAmount": 0,
             "playerId": props.route.params.userId
@@ -119,7 +137,7 @@ const GameScreen = (props) => {
     }    
 
     const playerItems = players.map((player, index) => {
-        return <Player player={player} key={index} />
+        return <Player player={player} userId={props.route.params.userId} key={index} />
     })
 
     return(
