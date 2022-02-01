@@ -22,6 +22,7 @@ const GameScreen = (props) => {
     // individual user states
     const [holeCards, setHoleCards] = useState(); // needs own route (just get user"s cards by id)
     const [user, setUser] = useState(); // calculated from allPlayers
+    const [userContribution, setUserContribution] = useState();
     const [players, setPlayers] = useState([]); // calculated from allPlayers
 
     // constant states (same for every player)
@@ -33,6 +34,7 @@ const GameScreen = (props) => {
     const [winner, setWinner] = useState(); // standalone route ??
     const [largestContribution, setlargestContribution] = useState();
     const [gameKey, setgameKey] = useState();
+    const [dealt, setDealt] = useState(false);
 
     useEffect(async() => {
         await connect();
@@ -55,6 +57,7 @@ const GameScreen = (props) => {
             // setConnected(true);
             console.log("Connected: " + frame);
             stompClient.subscribe("/client/greetings", async function(response) {
+                // check if create game has worked
                 console.log("!!!SERVER'S Response (client/greetings):\n");
                 console.log(response["body"]);
                 let data = await JSON.parse(response["body"]);
@@ -121,6 +124,8 @@ const GameScreen = (props) => {
     }
 
     function handleBet(){
+        let amount = userContribution + betAmount;
+        setUserContribution(amount);
         stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "bet",
             "betAmount": betAmount,
@@ -129,12 +134,21 @@ const GameScreen = (props) => {
     }
 
     function handleCall(){
+        let amount = userContribution + betAmount;
+        setUserContribution(amount);
         stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
             "action": "call",
             "betAmount": 0,
             "playerId": props.route.params.userId
         }));
     }    
+    
+    function handleDealHoleCards(){
+        setDealt(true);
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`,{}, JSON.stringify({
+            "action":"deal"
+        }))
+    }
 
     const playerItems = players.map((player, index) => {
         return <Player player={player} userId={props.route.params.userId} key={index} />
@@ -154,9 +168,15 @@ const GameScreen = (props) => {
                         {playerItems}
                     </View>
 
-                    <View style={styles.board}>
+                    {dealt? <View style={styles.board}>
                         
-                    </View>
+                        </View> 
+                        : <Button 
+                            style={styles.dealButton}
+                            onPress={handleDealHoleCards} 
+                            /> 
+                    
+                    }
                     
                     <View style={styles.playerView}>
 
@@ -291,6 +311,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         borderWidth: 1,
+    },
+    dealButton: {
+        height: "40%",
+        flexDirection: "row",
+        justifyContent: "center",
+        backgroundColor: "blue",
+        color: "white",
+
     },
 });
 
