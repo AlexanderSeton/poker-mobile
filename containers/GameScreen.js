@@ -8,88 +8,6 @@ let stompClient;
 
 const GameScreen = (props) => {
 
-    async function connect() {
-        let socket = await new SockJS("http://localhost:8080/ws");
-        stompClient = await Stomp.over(socket);
-        await stompClient.connect({}, function (frame) {
-            // setConnected(true);
-            console.log("Connected: " + frame);
-            stompClient.subscribe("/client/greetings", function(response) {
-                console.log("SERVER'S Response: ", response.body);
-                // let players = JSON.parse(response.body);
-                // setPlayers([players]); // temp for testing
-            });
-        });
-    }
-
-    function disconnect() {
-        if (stompClient !== null) {
-            stompClient.disconnect();
-        }
-        // setConnected(false);
-        console.log("Disconnected");
-    }
-
-    function createNewGame() {
-        stompClient.send(`/server/create/game/${props.route.params.gameId}`, {}, JSON.stringify(
-            {
-                "id": props.route.params.userId,
-                "bigBlindValue": props.route.params.bigBlind
-            }));
-        console.log("TEST: user id state at create game function: " + userId);
-    }
-
-    function connectToGame(){
-        stompClient.connect(`/server/game/${props.route.params.gameId}`,{},JSON.stringify(
-            {
-                "id": props.route.params.userId
-            }
-        ))
-    }
-
-    function sendName() {
-        // connect();
-        stompClient.send("/server/hello", {}, JSON.stringify({"name": "Alexander"}));
-    }
-
-    function handleFold() {
-        // connect();
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
-            "action": "fold",
-            "betAmount": 0,
-            "playerId": userId
-        }));
-    }
-
-    function handleBet(){
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
-            "action": "bet",
-            "betAmount": betAmount,
-            "playerId": props.route.params.userId
-        }));
-    }
-
-    function handleCall(){
-        stompClient.send("/server/action/game/1", {}, JSON.stringify({
-            "action": "call",
-            "betAmount": 0,
-            "playerId": props.route.params.userId
-        }));
-    }
-
-    // function showGreeting(message) {
-    //     $("#greetings").append("<tr><td>" + message + "</td></tr>");
-    // }
-
-    // $(function () {
-    //     $("form").on("submit", function (e) {
-    //         e.preventDefault();
-    //     });
-    //     $( "#connect" ).click(function() { connect(); });
-    //     $( "#disconnect" ).click(function() { disconnect(); });
-    //     $( "#send" ).click(function() { sendName(); });
-    // });
-
     // WEBSOCKET ROUTES:
     // gameData - refreshed after every player"s action/move
     // allPlayers - refreshed after every player"s action/move
@@ -97,7 +15,7 @@ const GameScreen = (props) => {
     // ?winner - refreshed end of every round/game
 
     // CLIENT-SIDE STATES (individual to each user)
-    const [userId, setUserId] = useState();
+    const [userId, setUserId] = useState(props.route.params.userId);
     const [betAmount, setBetAmount] = useState();
 
     // SERVER-SIDE STATES
@@ -111,59 +29,122 @@ const GameScreen = (props) => {
     const [pot, setPot] = useState(); // gameDataRoute
     const [smallBlind, setSmallBlind] = useState(); // gameDataRoute
     const [bigBlind, setBigBlind] = useState(); // gameDataRoute
-    const [allPlayers, setAllPlayers] = useState([]);
     const [activePlayer, setActivePlayer] = useState(); // calculated from allPlayers
     const [winner, setWinner] = useState(); // standalone route ??
     const [largestContribution, setlargestContribution] = useState();
-    const [gameId,setGameId] = useState();
+    const [gameKey, setgameKey] = useState();
 
-    useEffect(() => {
-        connect();
-        setUserId(props.route.params.userId);
+    useEffect(async() => {
+        await connect();
         setTimeout(() => {
             if (props.route.params.newGame !== undefined) {
+                console.log("creating new game");
                 createNewGame();
             } else {
                 connectToGame();
+                console.log("connecting to game");
             }
         }, 1000)
-        // setTimeout(() => {
-        //     sendName();
-        // }, 1000)
     }, [])
-    
 
-        // function handleCall () {
-        //     stompClient.send("/server/hello",{}, JSON.stringify({
-    
-        //     }));
-    
-        // }
-    
-        // function handleBet () {
-        //     stompClient.send("/server/hello",{}, JSON.stringify());
-    
-        // }
-        
-        // function handleFold (element) {
-        //     element.$server.fold();
-        // }
-    
-        // function handleCall () {
-        //     activePlayer.call();
-        // }
-    
-        // function handleBet () {
-        //     activePlayer.bet();
-        // }
-    
+    // WEBSOCKET FUNCTIONS
+    async function connect() {
+        let socket = new SockJS("http://localhost:8080/ws");
+        stompClient = await Stomp.over(socket);
+        await stompClient.connect({}, function (frame) {
+            // setConnected(true);
+            console.log("Connected: " + frame);
+            stompClient.subscribe("/client/greetings", async function(response) {
+                console.log("!!!SERVER'S Response (client/greetings):\n");
+                console.log(response["body"]);
+                let data = await JSON.parse(response["body"]);
+                let players = await data["players"];
+                setPlayers(players);
+                let board = await data["board"];
+                setCommunityCards(board);
+                for (let i=0; i<players; i++) {
+                    if (players[i]["id"] == props.route.params.userId) {
+                        let user = await players[i];
+                        setUser(user);
+                    }
+                }
+                let pot = await data["pot"];
+                setPot(pot);
+            });
+            stompClient.subscribe("/client/join", async function(response) {
+                console.log("!!!SERVER'S Response (client/join):\n");
+                if (response == null) {
+                    console.log("NULL RESPONSE");
+                }
+                console.log(response["body"]);
+                let data = await JSON.parse(response["body"]);
+                let players = data["players"];
+                setPlayers(players);
+                let board = data["board"];
+                setCommunityCards(board);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        // setConnected(false);
+        console.log("Disconnected");
+    }
+
+    function createNewGame() {
+        stompClient.send(`/server/create/game/${props.route.params.gameKey}`, {}, JSON.stringify(
+            {
+                "id": props.route.params.userId,
+                "bigBlindValue": props.route.params.bigBlind
+            }));
+    }
+
+    function connectToGame(){
+        console.log(`Game Key: ${props.route.params.gameKey}. User ID: ${props.route.params.userId}`)
+        stompClient.send(`/server/join/game/${props.route.params.gameKey}`, {}, JSON.stringify(
+            {
+                "id": props.route.params.userId
+            }
+        ))
+    }
+
+    function handleFold() {
+        // connect();
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
+            "action": "fold",
+            "betAmount": 0,
+            "playerId": userId
+        }));
+    }
+
+    function handleBet(){
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
+            "action": "bet",
+            "betAmount": betAmount,
+            "playerId": props.route.params.userId
+        }));
+    }
+
+    function handleCall(){
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
+            "action": "call",
+            "betAmount": 0,
+            "playerId": props.route.params.userId
+        }));
+    }    
 
     const playerItems = players.map((player, index) => {
-        return <Player player={player} key={index} />
+        return <Player player={player} userId={props.route.params.userId} key={index} />
     })
 
     return(
         <SafeAreaView>
+
+            <Text style={styles.gameKey}>Game Key: {props.route.params.gameKey}</Text>
+
             <View style={styles.main}>
 
                 <View style={styles.top}>
@@ -234,7 +215,13 @@ const GameScreen = (props) => {
 
 const styles = StyleSheet.create({
     main: {
-        paddingTop: "7.5%",
+        paddingTop: "3%",
+    },
+    gameKey: {
+        paddingTop: "3%",
+        textAlign: "center",
+        alignContent: "center",
+        fontSize: 20,
     },
     buttonView: {
         height: "60%",
@@ -255,12 +242,12 @@ const styles = StyleSheet.create({
     },
     top: {
         borderWidth: 1,
-        height: "60%",
+        height: "50%",
         backgroundColor: "green",
     },
     bottom: {
         borderWidth: 1,
-        height: "40%",
+        height: "50%",
     },
     text: {
         textAlign: "center",
@@ -271,15 +258,16 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
     userTop: {
-        height: "60%",
+        height: "55%",
         flexDirection: "row",
     },
     userBottom: {
-        height: "40%",
+        height: "45%",
         flexDirection: "row",
         // alignContent: "center",
         justifyContent: "center",
         alignItems: "center",
+        paddingBottom: "10%",
     },
     userHand: {
         borderWidth: 1,
@@ -292,13 +280,13 @@ const styles = StyleSheet.create({
         width: "40%",
     },
     board: {
-        height: "50%",
+        height: "40%",
         flexDirection: "row",
         justifyContent: "flex-start",
         // backgroundColor: "green",
     },
     playerView: {
-        height: "25%",
+        height: "30%",
         // backgroundColor: "green",
         flexDirection: "row",
         justifyContent: "space-between",

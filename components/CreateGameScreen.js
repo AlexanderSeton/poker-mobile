@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, Alert, TextInput } from "react-native";
 
 const CreateGameScreen = (props) => {
 
-    const [gameId, setGameId] = useState();
+    const [gameKey, setgameKey] = useState();
     const [maxPlayers, setMaxPlayers] = useState();
     const [bigBlind, setBigBlind] = useState();
     const [minBuyIn, setMinBuyIn] = useState();
@@ -14,7 +14,7 @@ const CreateGameScreen = (props) => {
 
     const handleSubmit = () => {
         if (
-            gameId == null || gameId == "" || gameId == undefined || gameId == NaN || 
+            gameKey == null || gameKey == "" || gameKey == undefined || gameKey == NaN || 
             maxPlayers == null || maxPlayers == "" || maxPlayers == undefined || maxPlayers == NaN || 
             bigBlind == null || bigBlind == "" || bigBlind == undefined || bigBlind == NaN || 
             minBuyIn == null || minBuyIn == "" || minBuyIn == undefined || minBuyIn == NaN 
@@ -36,10 +36,10 @@ const CreateGameScreen = (props) => {
         else {
             // create a new game server side
             console.log("creating new game...")
-            console.log(gameId, maxPlayers, bigBlind, minBuyIn);
+            console.log(gameKey, maxPlayers, bigBlind, minBuyIn);
             props.navigation.navigate("Play", {
                 "newGame": true,
-                "gameId": gameId,
+                "gameKey": gameKey,
                 "userId": props.route.params.userId,
                 "bigBlind": bigBlind
             });
@@ -49,12 +49,12 @@ const CreateGameScreen = (props) => {
     return(
         <View style={styles.main}>
             <View style={styles.inputView}>
-                <Text style={styles.text}>Game Id:</Text>
+                <Text style={styles.text}>Game Key:</Text>
                 <Text style={styles.smallText}>This will be what people use to join your game</Text>
                 <TextInput
                     style={styles.input}
-                    onChangeText={setGameId}
-                    value={gameId}
+                    onChangeText={setgameKey}
+                    value={gameKey}
                     placeholder="Game ID..."
                 />
             </View>
