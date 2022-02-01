@@ -32,8 +32,8 @@ const GameScreen = (props) => {
     const [bigBlind, setBigBlind] = useState(); // gameDataRoute
     const [activePlayer, setActivePlayer] = useState(); // calculated from allPlayers
     const [winner, setWinner] = useState(); // standalone route ??
-    const [largestContribution, setlargestContribution] = useState();
-    const [gameKey, setgameKey] = useState();
+    const [largestContribution, setLargestContribution] = useState();
+    const [gameKey, setGameKey] = useState();
     const [dealt, setDealt] = useState(false);
 
     useEffect(async() => {
@@ -205,9 +205,12 @@ const GameScreen = (props) => {
     
     function handleDealHoleCards(){
         setDealt(true);
-        stompClient.send(`/server/action/game/${props.route.params.gameKey}`,{}, JSON.stringify({
-            "action": "deal"
-        }))
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
+            "action": "deal",
+            "betAmount": betAmount,
+            "playerId": props.route.params.userId,
+            "gameId": props.route.params.gameId
+        }));
     }
 
     const playerItems = players.map((player, index) => {
@@ -224,20 +227,21 @@ const GameScreen = (props) => {
                 <View style={styles.top}>
 
                     <View style={styles.playerView}>
-                        {playerItems}
+                        {players.length != 0 ?
+                            playerItems 
+                        : null}
                     </View>
 
-
-                    {dealt? <View style={styles.board}>
+                    {dealt ?
+                        <View style={styles.board}>
                         
                         </View> 
-                        : <Button 
-
-                            title = "deal"
-
-                            style={styles.dealButton}
-                            onPress={handleDealHoleCards} 
-                            /> 
+                    : 
+                        <Button 
+                        title="deal"
+                        style={styles.dealButton}
+                        onPress={handleDealHoleCards} 
+                        /> 
                     }
                     
                     <View style={styles.playerView}>
