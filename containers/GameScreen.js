@@ -173,6 +173,7 @@ const GameScreen = (props) => {
                         
                         </View> 
                         : <Button 
+                            title = "deal"
                             style={styles.dealButton}
                             onPress={handleDealHoleCards} 
                             /> 
