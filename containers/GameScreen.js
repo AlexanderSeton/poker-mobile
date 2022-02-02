@@ -3,6 +3,7 @@ import { View, Text, Button, TextInput, StyleSheet, SafeAreaView, Alert } from "
 import Player from "../components/Player"
 import SockJS from "sockjs-client";
 import { Stomp } from "stomp-websocket/lib/stomp";
+import HoleCard from "../components/HoleCard";
 
 let stompClient;
 
@@ -20,7 +21,7 @@ const GameScreen = (props) => {
 
     // SERVER-SIDE STATES
     // individual user states
-    const [holeCards, setHoleCards] = useState(); // needs own route (just get user"s cards by id)
+    const [holeCards, setHoleCards] = useState([]); // needs own route (just get user"s cards by id)
     const [user, setUser] = useState(); // calculated from allPlayers
     const [userContribution, setUserContribution] = useState();
     const [players, setPlayers] = useState([]); // calculated from allPlayers
@@ -58,7 +59,7 @@ const GameScreen = (props) => {
             console.log("Connected: " + frame);
 
             stompClient.subscribe("/client/greetings", async function(response) {
-                console.log("client/greetings):"); // test
+                console.log("client/greetings:"); // test
                 console.log(JSON.parse(response["body"])); // test
                 let data = await JSON.parse(response["body"]);
                 // check successfully joined
@@ -102,9 +103,10 @@ const GameScreen = (props) => {
             });
 
             stompClient.subscribe("/client/join", async function(response) {
-                console.log("client/join):"); // test
+                console.log("client/join:"); // test
                 console.log(JSON.parse(response["body"])); // test
                 let data = await JSON.parse(response["body"]);
+                console.log("DATA: " + data);
                 // check successfully joined
                 if (data["statusCode"] == "OK") {
                     console.log("success") // test
@@ -143,6 +145,28 @@ const GameScreen = (props) => {
                     );
                     // return user to the create game page
                     props.navigation.navigate("Join Game");
+                }
+            });
+            stompClient.subscribe("/client/deal", async function(response) {
+                console.log("client/deal:"); // test
+                console.log(JSON.parse(response["body"])); // test
+                let data = await JSON.parse(response["body"]);
+                // check response successful
+                if (data["statusCodeValue"] == 200) {
+                    console.log("success");
+                    let playersHands = await data["body"];
+                    for (const [key, value] of Object.entries(playersHands)) {
+                        if (key.toString().toLowerCase() == props.route.params.userId) {
+                            const valueFormatted = [];
+                            for (let i=0; i<value.length; i+=2) {
+                                let formatStringValue = value[i] + " " + value[i+1];
+                                valueFormatted.push(formatStringValue);
+                            }
+                            setHoleCards(valueFormatted);
+                            console.log("set hole cards");
+                            console.log(valueFormatted);
+                        }
+                    }    
                 }
             });
         });
@@ -205,7 +229,7 @@ const GameScreen = (props) => {
     
     function handleDealHoleCards(){
         setDealt(true);
-        stompClient.send(`/server/action/game/${props.route.params.gameKey}`, {}, JSON.stringify({
+        stompClient.send(`/server/action/game/${props.route.params.gameKey}/deal`, {}, JSON.stringify({
             "action": "deal",
             "betAmount": betAmount,
             "playerId": props.route.params.userId,
@@ -215,8 +239,17 @@ const GameScreen = (props) => {
 
     const playerItems = players.map((player, index) => {
         return <Player player={player} userId={props.route.params.userId} key={index} />
-    })
+    });
 
+    const holeCardItems = holeCards.map((holeCard, index) => {
+        let data = holeCard.split(" ");
+        let suit = data[0];
+        let value = data[1];
+        let path = suit + value;
+        // let fullPath = `../assets/cards/${path}.png`;
+        return <HoleCard card={holeCard} path={path} key={index} />
+    });
+       
     return(
         <SafeAreaView>
 
@@ -232,17 +265,21 @@ const GameScreen = (props) => {
                         : null}
                     </View>
 
-                    {dealt ?
-                        <View style={styles.board}>
-                        
-                        </View> 
-                    : 
-                        <Button 
-                        title="deal"
-                        style={styles.dealButton}
-                        onPress={handleDealHoleCards} 
-                        /> 
-                    }
+                    <View style={styles.board}>
+
+                        {/* {holeCards != undefined ? */}
+                            <View style={styles.dealButtonView}>
+                                <Button 
+                                    title="Deal"
+                                    style={styles.dealButton}
+                                    onPress={() => 
+                                        handleDealHoleCards()
+                                    } 
+                                />
+                            </View>
+                        {/* // : null} */}
+
+                    </View> 
                     
                     <View style={styles.playerView}>
 
@@ -254,6 +291,9 @@ const GameScreen = (props) => {
                     <View style={styles.userTop}>
                         <View style={styles.userHand}>
                             <Text style={styles.text}>Hole Cards</Text>
+                            <View style={styles.holeCards}>
+                                {holeCardItems}
+                            </View>
                         </View>
                         <View style={styles.userData}>
                             <Text style={styles.text}>User Data</Text>
@@ -320,6 +360,24 @@ const styles = StyleSheet.create({
         borderColor: "blue",
         justifyContent: "center",
     },
+    dealButtonView: {
+        height: "30%",
+        width: "40%",
+        borderWidth: 1,
+        padding: "1%",
+        marginTop: "10%",
+        marginLeft: "auto",
+        marginRight: "auto",
+        borderRadius: 10,
+        borderColor: "blue",
+        justifyContent: "center",
+        backgroundColor: "lightgreen",
+    },
+    holeCards: {
+        display: "flex",
+        flexDirection: "row",
+        // width: "10%",
+    },
     input: {
         height: 40,
         margin: 5,
@@ -378,13 +436,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         borderWidth: 1,
-    },
-    dealButton: {
-        height: "40%",
-        flexDirection: "row",
-        justifyContent: "center",
-        backgroundColor: "blue",
-        color: "white",
     },
 });
 
