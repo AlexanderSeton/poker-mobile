@@ -246,7 +246,8 @@ const GameScreen = (props) => {
         let suit = data[0];
         let value = data[1];
         let path = suit + value;
-        return <HoleCard card={holeCard} path={`../assets/cards/${path}.png`} key={index} />
+        // let fullPath = `../assets/cards/${path}.png`;
+        return <HoleCard card={holeCard} path={path} key={index} />
     });
        
     return(

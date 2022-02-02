@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import CardImages from './CardImages';
 
 const HoleCard = function(props) {
 
     const [imagePath, setImagePath] = useState("2_of_clubs");
 
-    // useEffect(() => {
-    //     let data = props.HoleCard.split(" ");
-    //     let suit = data[0];
-    //     let value = data[1];
-    //     let path = suit + value;
-    //     setImagePath(path);
-    // }, [props])
+    useEffect(() => {
+        setImagePath(props.path);
+        console.log(props.path)
+    }, [props])
 
     // function getImage() {
     //     console.log(props.HoleCard);
@@ -25,7 +23,8 @@ const HoleCard = function(props) {
         <View style={styles.imageView}>
             <Image
                 style ={styles.image}
-                source={require("../assets/cards/SPADESTWO.png")}
+                // source={require("../assets/cards/SPADESTWO.png")}
+                source={CardImages["cards"][props.path]}
             />
         </View>
     );
