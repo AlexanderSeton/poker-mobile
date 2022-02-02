@@ -4,6 +4,8 @@ import Player from "../components/Player"
 import SockJS from "sockjs-client";
 import { Stomp } from "stomp-websocket/lib/stomp";
 import HoleCard from "../components/HoleCard";
+import UserData from "../components/UserData";
+
 
 let stompClient;
 
@@ -50,6 +52,12 @@ const GameScreen = (props) => {
         }, 1000)
     }, [])
 
+    // useEffect(async() => {
+    //     const response = await fetch(`http://localhost:8080/players/${props.route.params.userId}`);
+    //     console.log("RESPONSE");
+    //     console.log(response);
+    // }, [])
+
     // WEBSOCKET FUNCTIONS
     async function connect() {
         let socket = new SockJS("http://localhost:8080/ws");
@@ -69,7 +77,7 @@ const GameScreen = (props) => {
                     setPlayers(players);
                     let board = await data["body"]["board"];
                     setCommunityCards(board);
-                    for (let i=0; i<players; i++) {
+                    for (let i=0; i<players.length; i++) {
                         if (players[i]["id"] == props.route.params.userId) {
                             let user = await players[i];
                             setUser(user);
@@ -115,7 +123,7 @@ const GameScreen = (props) => {
                     setPlayers(players);
                     let board = await data["body"]["board"];
                     setCommunityCards(board);
-                    for (let i=0; i<players; i++) {
+                    for (let i=0; i<players.length; i++) {
                         if (players[i]["id"] == props.route.params.userId) {
                             let user = await players[i];
                             setUser(user);
@@ -267,7 +275,7 @@ const GameScreen = (props) => {
 
                     <View style={styles.board}>
 
-                        {/* {holeCards != undefined ? */}
+                        {!dealt? 
                             <View style={styles.dealButtonView}>
                                 <Button 
                                     title="Deal"
@@ -277,7 +285,8 @@ const GameScreen = (props) => {
                                     } 
                                 />
                             </View>
-                        {/* // : null} */}
+                            : null }
+                        
 
                     </View> 
                     
@@ -296,7 +305,14 @@ const GameScreen = (props) => {
                             </View>
                         </View>
                         <View style={styles.userData}>
-                            <Text style={styles.text}>User Data</Text>
+                            <Text style={styles.text}>Stats</Text>
+                            
+                            {user != undefined ?
+                            // <View style={styles.userData}>
+                                <UserData user={user} />
+                            // </View>
+                            : null}
+                            
                         </View>
                     </View>
 
@@ -423,6 +439,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         // borderColor: "red",
         width: "40%",
+        textAlign: "center",
     },
     board: {
         height: "40%",
